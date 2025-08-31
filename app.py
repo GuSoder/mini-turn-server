@@ -8,15 +8,15 @@ CORS(app)
 games = {}
 
 def is_adjacent_hex(pos1, pos2):
-    """Check if two hex coordinates are adjacent"""
+    """Check if two hex coordinates are adjacent using simple distance"""
     q1, r1 = pos1['q'], pos1['r']
     q2, r2 = pos2['q'], pos2['r']
     
-    # Hex neighbors: (0,1), (1,0), (1,-1), (0,-1), (-1,0), (-1,1)
-    neighbors = [(0,1), (1,0), (1,-1), (0,-1), (-1,0), (-1,1)]
-    diff_q, diff_r = q2 - q1, r2 - r1
+    # Calculate simple distance between grid positions
+    diff_q, diff_r = abs(q2 - q1), abs(r2 - r1)
     
-    return (diff_q, diff_r) in neighbors
+    # Adjacent if exactly 1 step in any direction (including diagonals)
+    return (diff_q <= 1 and diff_r <= 1) and (diff_q + diff_r > 0)
 
 def validate_path(path):
     """Validate that path is a sequence of adjacent hexes"""

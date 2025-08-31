@@ -47,17 +47,17 @@ def create_game():
     game_id = str(uuid.uuid4())
     games[game_id] = {
         "positions": [
-            {"q": 0, "r": 0},
-            {"q": 2, "r": -1}, 
-            {"q": -1, "r": 1},
-            {"q": 3, "r": 0}
+            {"q": 4, "r": 4},
+            {"q": 6, "r": 3}, 
+            {"q": 3, "r": 5},
+            {"q": 7, "r": 4}
         ],
         "playerInTurn": 0,
         "lastPaths": [
-            [{"q": 0, "r": 0}],
-            [{"q": 2, "r": -1}],
-            [{"q": -1, "r": 1}], 
-            [{"q": 3, "r": 0}]
+            [{"q": 4, "r": 4}],
+            [{"q": 6, "r": 3}],
+            [{"q": 3, "r": 5}], 
+            [{"q": 7, "r": 4}]
         ]
     }
     return jsonify({"gameId": game_id})

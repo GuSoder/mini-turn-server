@@ -29,6 +29,18 @@ def validate_path(path):
     
     return True
 
+@app.route('/games', methods=['GET'])
+def list_games():
+    """List all active games"""
+    game_list = []
+    for game_id, game_data in games.items():
+        game_list.append({
+            "gameId": game_id,
+            "playerInTurn": game_data["playerInTurn"],
+            "playerCount": 4
+        })
+    return jsonify({"games": game_list})
+
 @app.route('/games', methods=['POST'])
 def create_game():
     """Create a new game"""

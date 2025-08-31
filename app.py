@@ -73,13 +73,20 @@ def get_game_state(game_id):
 @app.route('/games/<game_id>/move', methods=['POST'])
 def make_move(game_id):
     """Make a move in the game"""
+    print(f"Move request for game {game_id}")
+    
     if game_id not in games:
+        print(f"Game {game_id} not found")
         return jsonify({"ok": False, "error": "Game not found"}), 404
     
     game = games[game_id]
     data = request.get_json()
     
+    print(f"Move data: {data}")
+    print(f"Current game state: playerInTurn={game['playerInTurn']}, positions={game['positions']}")
+    
     if not data or 'player' not in data or 'path' not in data:
+        print("Invalid request - missing data")
         return jsonify({"ok": False, "error": "Invalid request"})
     
     player = data['player']

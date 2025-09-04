@@ -80,20 +80,13 @@ def get_game_state(game_id):
 @app.route('/games/<game_id>/move', methods=['POST'])
 def make_move(game_id):
     """Make a move in the game"""
-    print(f"Move request for game {game_id}")
-    
     if game_id not in games:
-        print(f"Game {game_id} not found")
         return jsonify({"ok": False, "error": "Game not found"}), 404
     
     game = games[game_id]
     data = request.get_json()
     
-    print(f"Move data: {data}")
-    print(f"Current game state: playerInTurn={game['playerInTurn']}, positions={game['positions']}")
-    
     if not data or 'player' not in data or 'path' not in data:
-        print("Invalid request - missing data")
         return jsonify({"ok": False, "error": "Invalid request"})
     
     player = data['player']
@@ -128,26 +121,20 @@ def make_move(game_id):
     game['positions'][player] = path[-1]
     game['lastPaths'][player] = path
     game['phase'] = Phase.MOVING.value
+    print(f"PHASE: Player {player} move accepted, changed to MOVING phase")
     
     return jsonify({"ok": True})
 
 @app.route('/games/<game_id>/end_turn', methods=['POST'])
 def end_turn(game_id):
     """End the current player's turn"""
-    print(f"End turn request for game {game_id}")
-    
     if game_id not in games:
-        print(f"Game {game_id} not found")
         return jsonify({"ok": False, "error": "Game not found"}), 404
     
     game = games[game_id]
     data = request.get_json()
     
-    print(f"End turn data: {data}")
-    print(f"Current game state: playerInTurn={game['playerInTurn']}, phase={game['phase']}")
-    
     if not data or 'player' not in data:
-        print("Invalid request - missing player")
         return jsonify({"ok": False, "error": "Invalid request"})
     
     player = data['player']
@@ -165,8 +152,10 @@ def end_turn(game_id):
         return jsonify({"ok": False, "error": "Not in moving phase"})
     
     # Increment turn and reset to planning phase
+    old_player = game['playerInTurn']
     game['playerInTurn'] = (game['playerInTurn'] + 1) % 4
     game['phase'] = Phase.PLANNING.value
+    print(f"PHASE: Player {old_player} ended turn, now Player {game['playerInTurn']} turn in PLANNING phase")
     
     return jsonify({"ok": True})
 

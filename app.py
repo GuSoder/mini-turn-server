@@ -128,27 +128,37 @@ def make_move(game_id):
 @app.route('/games/<game_id>/end_turn', methods=['POST'])
 def end_turn(game_id):
     """End the current player's turn"""
+    print(f"END_TURN: Received end_turn request for game {game_id}")
+    
     if game_id not in games:
+        print(f"END_TURN: Game {game_id} not found")
         return jsonify({"ok": False, "error": "Game not found"}), 404
     
     game = games[game_id]
     data = request.get_json()
     
+    print(f"END_TURN: Request data: {data}")
+    print(f"END_TURN: Current state - playerInTurn: {game['playerInTurn']}, phase: {game['phase']}")
+    
     if not data or 'player' not in data:
+        print("END_TURN: Invalid request - missing player")
         return jsonify({"ok": False, "error": "Invalid request"})
     
     player = data['player']
     
     # Validate player number
     if player < 0 or player > 3:
+        print(f"END_TURN: Invalid player number: {player}")
         return jsonify({"ok": False, "error": "Invalid player"})
     
     # Check if it's the player's turn
     if game['playerInTurn'] != player:
+        print(f"END_TURN: Not player's turn - expected {game['playerInTurn']}, got {player}")
         return jsonify({"ok": False, "error": "Not your turn"})
     
     # Check if we're in moving phase
     if game['phase'] != Phase.MOVING.value:
+        print(f"END_TURN: Not in moving phase - current phase: {game['phase']}")
         return jsonify({"ok": False, "error": "Not in moving phase"})
     
     # Increment turn and reset to planning phase

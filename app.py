@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import uuid
 from enum import Enum
+import logging
 
 class Phase(Enum):
     PLANNING = "planning"
@@ -9,6 +10,15 @@ class Phase(Enum):
 
 app = Flask(__name__)
 CORS(app)
+
+# Configure logging to suppress GET requests
+class NoGetFilter(logging.Filter):
+    def filter(self, record):
+        return 'GET' not in record.getMessage()
+
+# Apply filter to werkzeug logger (handles HTTP requests)
+werkzeug_logger = logging.getLogger('werkzeug')
+werkzeug_logger.addFilter(NoGetFilter())
 
 games = {}
 

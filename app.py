@@ -34,6 +34,14 @@ def validate_path(path):
     
     return True
 
+def get_next_alive_player(game, current_player):
+    """Find the next player that's still alive (health > 0)"""
+    for i in range(4):  # Try up to 4 times to find next alive player
+        next_player = (current_player + 1 + i) % 4
+        if game['stats'][next_player]['health'] > 0:
+            return next_player
+    return -1  # No alive players found
+
 @app.route('/games', methods=['GET'])
 def list_games():
     """List all active games"""
@@ -65,6 +73,12 @@ def create_game():
             [{"q": 6, "r": 3}],
             [{"q": 3, "r": 5}], 
             [{"q": 7, "r": 4}]
+        ],
+        "stats": [
+            {"health": 10, "max_health": 10, "strength": 5},
+            {"health": 10, "max_health": 10, "strength": 5},
+            {"health": 10, "max_health": 10, "strength": 5},
+            {"health": 10, "max_health": 10, "strength": 5}
         ]
     }
     return jsonify({"gameId": game_id})
@@ -125,6 +139,60 @@ def make_move(game_id):
     
     return jsonify({"ok": True})
 
+@app.route('/games/<game_id>/attack', methods=['POST'])
+def attack(game_id):
+    """Handle an attack between players"""
+    if game_id not in games:
+        return jsonify({"ok": False, "error": "Game not found"}), 404
+    
+    game = games[game_id]
+    data = request.get_json()
+    
+    if not data or 'attacker' not in data or 'target' not in data:
+        return jsonify({"ok": False, "error": "Invalid request"})
+    
+    attacker = data['attacker']
+    target = data['target']
+    
+    # Validate player numbers
+    if attacker < 0 or attacker > 3 or target < 0 or target > 3:
+        return jsonify({"ok": False, "error": "Invalid player numbers"})
+    
+    # Check if it's the attacker's turn
+    if game['playerInTurn'] != attacker:
+        return jsonify({"ok": False, "error": "Not your turn"})
+    
+    # Check if we're in moving phase
+    if game['phase'] != Phase.MOVING.value:
+        return jsonify({"ok": False, "error": "Not in moving phase"})
+    
+    # Can't attack yourself
+    if attacker == target:
+        return jsonify({"ok": False, "error": "Cannot attack yourself"})
+    
+    # Check if target is adjacent to attacker's current position
+    attacker_pos = game['positions'][attacker]
+    target_pos = game['positions'][target]
+    
+    if not is_adjacent_hex(attacker_pos, target_pos):
+        return jsonify({"ok": False, "error": "Target not adjacent"})
+    
+    # Check if target is still alive
+    if game['stats'][target]['health'] <= 0:
+        return jsonify({"ok": False, "error": "Target is already dead"})
+    
+    # Apply damage
+    attacker_strength = game['stats'][attacker]['strength']
+    game['stats'][target]['health'] -= attacker_strength
+    
+    # Ensure health doesn't go below 0
+    if game['stats'][target]['health'] < 0:
+        game['stats'][target]['health'] = 0
+    
+    print(f"ATTACK: Player {attacker} attacked Player {target} for {attacker_strength} damage. Target health: {game['stats'][target]['health']}")
+    
+    return jsonify({"ok": True})
+
 @app.route('/games/<game_id>/end_turn', methods=['POST'])
 def end_turn(game_id):
     """End the current player's turn"""
@@ -161,9 +229,16 @@ def end_turn(game_id):
         print(f"END_TURN: Not in moving phase - current phase: {game['phase']}")
         return jsonify({"ok": False, "error": "Not in moving phase"})
     
-    # Increment turn and reset to planning phase
+    # Increment turn and reset to planning phase, skipping dead players
     old_player = game['playerInTurn']
-    game['playerInTurn'] = (game['playerInTurn'] + 1) % 4
+    next_player = get_next_alive_player(game, old_player)
+    
+    if next_player == -1:
+        print(f"GAME_END: No alive players found after player {old_player} ended turn")
+        # Could add game end logic here
+        return jsonify({"ok": False, "error": "Game over - no alive players"})
+    
+    game['playerInTurn'] = next_player
     game['phase'] = Phase.PLANNING.value
     print(f"PHASE: Player {old_player} ended turn, now Player {game['playerInTurn']} turn in PLANNING phase")
     

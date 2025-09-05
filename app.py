@@ -189,7 +189,7 @@ def attack(game_id):
     if game['stats'][target]['health'] < 0:
         game['stats'][target]['health'] = 0
     
-    print(f"ATTACK: Player {attacker} attacked Player {target} for {attacker_strength} damage. Target health: {game['stats'][target]['health']}")
+    print(f"ATTACK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: Player {attacker} attacked Player {target} for {attacker_strength} damage. Target health: {game['stats'][target]['health']}")
     
     return jsonify({"ok": True})
 

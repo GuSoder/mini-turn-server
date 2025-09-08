@@ -254,5 +254,15 @@ def end_turn(game_id):
     
     return jsonify({"ok": True})
 
+@app.route('/island/<int:island_num>', methods=['GET'])
+def get_island(island_num):
+    """Get island map data by number"""
+    try:
+        with open(f'islands/island{island_num}.txt', 'r') as f:
+            lines = [line.strip() for line in f.readlines()]
+        return jsonify({"map": lines})
+    except FileNotFoundError:
+        return jsonify({"error": f"Island {island_num} map not found"}), 404
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

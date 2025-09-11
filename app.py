@@ -71,7 +71,7 @@ def create_game():
     game_id = str(uuid.uuid4())
     games[game_id] = {
         "positions": [
-            {"q": 4, "r": 4},
+            {"q": 4, "r": 3},
             {"q": 6, "r": 3}, 
             {"q": 3, "r": 5},
             {"q": 7, "r": 4}
@@ -79,7 +79,7 @@ def create_game():
         "playerInTurn": 0,
         "phase": Phase.PLANNING.value,
         "lastPaths": [
-            [{"q": 4, "r": 4}],
+            [{"q": 4, "r": 3}],
             [{"q": 6, "r": 3}],
             [{"q": 3, "r": 5}], 
             [{"q": 7, "r": 4}]

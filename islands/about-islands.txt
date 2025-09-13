@@ -1,0 +1,20 @@
+# Island Map Documentation
+
+## Terrain Types
+- 0 = Water (impassable)
+- 1 = Grass (walkable)
+- 2 = Tree (impassable, decoration)
+- 3 = House (impassable, decoration)
+- 4 = Stone (impassable, decoration)
+
+## Island Compositions
+
+### Island 5 (20x20)
+Created as a larger island with the following composition:
+- Water (0): Random placement on rim hexes only
+- Grass (1): ~70% of total hexes - primary walkable terrain
+- Trees (2): ~20% of total hexes - scattered throughout for decoration
+- Houses (3): 3 specific grass hexes converted to houses
+- Stones (4): ~10% of total hexes - scattered for variety
+
+Note: Only grass tiles (1) are walkable for player movement. All other terrain types block movement but provide visual variety to the island.

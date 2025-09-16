@@ -72,7 +72,7 @@ def create_game():
     games[game_id] = {
         "positions": [
             {"q": 4, "r": 3},
-            {"q": 6, "r": 3}, 
+            {"q": 6, "r": 3},
             {"q": 3, "r": 5},
             {"q": 7, "r": 4}
         ],
@@ -81,7 +81,7 @@ def create_game():
         "lastPaths": [
             [{"q": 4, "r": 3}],
             [{"q": 6, "r": 3}],
-            [{"q": 3, "r": 5}], 
+            [{"q": 3, "r": 5}],
             [{"q": 7, "r": 4}]
         ],
         "stats": [
@@ -89,7 +89,8 @@ def create_game():
             {"health": 10, "max_health": 10, "strength": 5},
             {"health": 10, "max_health": 10, "strength": 5},
             {"health": 10, "max_health": 10, "strength": 5}
-        ]
+        ],
+        "map": "overworld"
     }
     return jsonify({"gameId": game_id})
 
@@ -253,6 +254,32 @@ def end_turn(game_id):
     print(f"PHASE: Player {old_player} ended turn, now Player {game['playerInTurn']} turn in PLANNING phase")
     
     return jsonify({"ok": True})
+
+@app.route('/games/<game_id>/set_map', methods=['POST'])
+def set_map(game_id):
+    """Set the current map for a game"""
+    if game_id not in games:
+        return jsonify({"ok": False, "error": "Game not found"}), 404
+
+    data = request.get_json()
+    if not data or 'map' not in data:
+        return jsonify({"ok": False, "error": "Invalid request - map field required"})
+
+    map_name = data['map']
+    games[game_id]['map'] = map_name
+    print(f"MAP: Game {game_id} map changed to {map_name}")
+
+    return jsonify({"ok": True})
+
+@app.route('/map/<map_name>', methods=['GET'])
+def get_map(map_name):
+    """Get map data by name"""
+    try:
+        with open(f'maps/{map_name}.txt', 'r') as f:
+            lines = [line.strip() for line in f.readlines()]
+        return jsonify({"map": lines})
+    except FileNotFoundError:
+        return jsonify({"error": f"Map {map_name} not found"}), 404
 
 @app.route('/island/<int:island_num>', methods=['GET'])
 def get_island(island_num):

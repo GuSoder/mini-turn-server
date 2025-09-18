@@ -327,5 +327,46 @@ def list_scenarios():
     except FileNotFoundError:
         return jsonify({"scenarios": []})
 
+@app.route('/games/<game_id>/set_scenario', methods=['POST'])
+def set_scenario(game_id):
+    """Set the scenario for a game, loading positions and map from scenario file"""
+    if game_id not in games:
+        return jsonify({"ok": False, "error": "Game not found"}), 404
+
+    data = request.get_json()
+    if not data or 'scenario' not in data:
+        return jsonify({"ok": False, "error": "Invalid request - scenario field required"})
+
+    scenario_name = data['scenario']
+
+    try:
+        with open(f'scenarios/{scenario_name}.json', 'r') as f:
+            scenario_data = json.load(f)
+    except FileNotFoundError:
+        return jsonify({"ok": False, "error": f"Scenario {scenario_name} not found"}), 404
+    except json.JSONDecodeError:
+        return jsonify({"ok": False, "error": f"Invalid JSON in scenario {scenario_name}"}), 500
+
+    # Update game state with scenario data
+    game = games[game_id]
+
+    # Set map from scenario
+    if "map" in scenario_data:
+        game['map'] = scenario_data['map']
+        print(f"SCENARIO: Game {game_id} map set to {scenario_data['map']}")
+
+    # Set player positions from scenario
+    if "player_positions" in scenario_data:
+        positions = scenario_data['player_positions']
+        if len(positions) >= 4:
+            for i in range(4):
+                if i < len(positions):
+                    game['positions'][i] = positions[i]
+                    # Also update lastPaths to reflect new positions
+                    game['lastPaths'][i] = [positions[i]]
+            print(f"SCENARIO: Game {game_id} positions updated from scenario {scenario_name}")
+
+    return jsonify({"ok": True})
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

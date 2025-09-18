@@ -3,6 +3,7 @@ from flask_cors import CORS
 import uuid
 from enum import Enum
 import logging
+import json
 
 class Phase(Enum):
     PLANNING = "planning"
@@ -290,6 +291,41 @@ def get_island(island_num):
         return jsonify({"map": lines})
     except FileNotFoundError:
         return jsonify({"error": f"Island {island_num} map not found"}), 404
+
+@app.route('/scenario/<scenario_name>', methods=['GET'])
+def get_scenario(scenario_name):
+    """Get scenario data by name"""
+    try:
+        with open(f'scenarios/{scenario_name}.json', 'r') as f:
+            scenario_data = json.load(f)
+        return jsonify(scenario_data)
+    except FileNotFoundError:
+        return jsonify({"error": f"Scenario {scenario_name} not found"}), 404
+    except json.JSONDecodeError:
+        return jsonify({"error": f"Invalid JSON in scenario {scenario_name}"}), 500
+
+@app.route('/scenarios', methods=['GET'])
+def list_scenarios():
+    """List all available scenarios"""
+    try:
+        import os
+        scenario_files = [f[:-5] for f in os.listdir('scenarios') if f.endswith('.json')]
+        scenarios = []
+        for scenario_name in scenario_files:
+            try:
+                with open(f'scenarios/{scenario_name}.json', 'r') as f:
+                    scenario_data = json.load(f)
+                scenarios.append({
+                    "name": scenario_name,
+                    "title": scenario_data.get("name", scenario_name),
+                    "description": scenario_data.get("description", ""),
+                    "map": scenario_data.get("map", "")
+                })
+            except (json.JSONDecodeError, FileNotFoundError):
+                continue
+        return jsonify({"scenarios": scenarios})
+    except FileNotFoundError:
+        return jsonify({"scenarios": []})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

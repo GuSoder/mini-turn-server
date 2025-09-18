@@ -1,0 +1,11 @@
+{
+    "name": "Overworld Starting Positions",
+    "description": "Standard starting positions for the overworld map",
+    "map": "overworld",
+    "player_positions": [
+        {"q": 4, "r": 3},
+        {"q": 6, "r": 3},
+        {"q": 3, "r": 5},
+        {"q": 7, "r": 4}
+    ]
+}

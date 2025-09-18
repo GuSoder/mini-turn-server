@@ -1,0 +1,11 @@
+{
+    "name": "Forest Encounter",
+    "description": "Encounter scenario in the forest clearing",
+    "map": "forrest_clearing",
+    "player_positions": [
+        {"q": 2, "r": 2},
+        {"q": 8, "r": 2},
+        {"q": 2, "r": 8},
+        {"q": 8, "r": 8}
+    ]
+}

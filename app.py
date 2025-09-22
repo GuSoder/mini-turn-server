@@ -9,6 +9,9 @@ class Phase(Enum):
     PLANNING = "planning"
     MOVING = "moving"
 
+# Configuration - set to 4 to maintain current functionality
+MAX_ENTITIES = 4
+
 app = Flask(__name__)
 CORS(app)
 
@@ -46,12 +49,12 @@ def validate_path(path):
     return True
 
 def get_next_alive_player(game, current_player):
-    """Find the next player that's still alive (health > 0)"""
-    for i in range(4):  # Try up to 4 times to find next alive player
-        next_player = (current_player + 1 + i) % 4
+    """Find the next entity that's still alive (health > 0)"""
+    for i in range(MAX_ENTITIES):  # Try up to MAX_ENTITIES times to find next alive entity
+        next_player = (current_player + 1 + i) % MAX_ENTITIES
         if game['stats'][next_player]['health'] > 0:
             return next_player
-    return -1  # No alive players found
+    return -1  # No alive entities found
 
 @app.route('/games', methods=['GET'])
 def list_games():
@@ -62,7 +65,7 @@ def list_games():
             "gameId": game_id,
             "playerInTurn": game_data["playerInTurn"],
             "phase": game_data["phase"],
-            "playerCount": 4
+            "playerCount": MAX_ENTITIES
         })
     return jsonify({"games": game_list})
 
@@ -70,27 +73,30 @@ def list_games():
 def create_game():
     """Create a new game"""
     game_id = str(uuid.uuid4())
+
+    # Define all 8 possible starting positions (first 4 are original player positions)
+    all_positions = [
+        {"q": 4, "r": 3},  # Player 1 (original)
+        {"q": 6, "r": 3},  # Player 2 (original)
+        {"q": 3, "r": 5},  # Player 3 (original)
+        {"q": 7, "r": 4},  # Player 4 (original)
+        {"q": 2, "r": 2},  # Enemy 1 (new)
+        {"q": 8, "r": 2},  # Enemy 2 (new)
+        {"q": 1, "r": 7},  # Enemy 3 (new)
+        {"q": 9, "r": 6}   # Enemy 4 (new)
+    ]
+
+    # Use only the first MAX_ENTITIES positions
+    active_positions = all_positions[:MAX_ENTITIES]
+    active_paths = [[pos] for pos in active_positions]
+    active_stats = [{"health": 10, "max_health": 10, "strength": 5} for _ in range(MAX_ENTITIES)]
+
     games[game_id] = {
-        "positions": [
-            {"q": 4, "r": 3},
-            {"q": 6, "r": 3},
-            {"q": 3, "r": 5},
-            {"q": 7, "r": 4}
-        ],
+        "positions": active_positions,
         "playerInTurn": 0,
         "phase": Phase.PLANNING.value,
-        "lastPaths": [
-            [{"q": 4, "r": 3}],
-            [{"q": 6, "r": 3}],
-            [{"q": 3, "r": 5}],
-            [{"q": 7, "r": 4}]
-        ],
-        "stats": [
-            {"health": 10, "max_health": 10, "strength": 5},
-            {"health": 10, "max_health": 10, "strength": 5},
-            {"health": 10, "max_health": 10, "strength": 5},
-            {"health": 10, "max_health": 10, "strength": 5}
-        ],
+        "lastPaths": active_paths,
+        "stats": active_stats,
         "map": "overworld"
     }
     return jsonify({"gameId": game_id})
@@ -118,8 +124,8 @@ def make_move(game_id):
     player = data['player']
     path = data['path']
     
-    # Validate player number
-    if player < 0 or player > 3:
+    # Validate entity number
+    if player < 0 or player >= MAX_ENTITIES:
         return jsonify({"ok": False, "error": "Invalid player"})
     
     # Check if it's the player's turn
@@ -166,8 +172,8 @@ def attack(game_id):
     attacker = data['attacker']
     target = data['target']
     
-    # Validate player numbers
-    if attacker < 0 or attacker > 3 or target < 0 or target > 3:
+    # Validate entity numbers
+    if attacker < 0 or attacker >= MAX_ENTITIES or target < 0 or target >= MAX_ENTITIES:
         return jsonify({"ok": False, "error": "Invalid player numbers"})
     
     # Check if it's the attacker's turn
@@ -226,8 +232,8 @@ def end_turn(game_id):
     
     player = data['player']
     
-    # Validate player number
-    if player < 0 or player > 3:
+    # Validate entity number
+    if player < 0 or player >= MAX_ENTITIES:
         print(f"END_TURN: Invalid player number: {player}")
         return jsonify({"ok": False, "error": "Invalid player"})
     
@@ -355,11 +361,11 @@ def set_scenario(game_id):
         game['map'] = scenario_data['map']
         print(f"SCENARIO: Game {game_id} map set to {scenario_data['map']}")
 
-    # Set player positions from scenario
+    # Set entity positions from scenario
     if "player_positions" in scenario_data:
         positions = scenario_data['player_positions']
-        if len(positions) >= 4:
-            for i in range(4):
+        if len(positions) >= MAX_ENTITIES:
+            for i in range(MAX_ENTITIES):
                 if i < len(positions):
                     game['positions'][i] = positions[i]
                     # Also update lastPaths to reflect new positions

@@ -9,8 +9,8 @@ class Phase(Enum):
     PLANNING = "planning"
     MOVING = "moving"
 
-# Configuration - set to 4 to maintain current functionality
-MAX_ENTITIES = 4
+# Configuration - set to 8 to support players + enemies
+MAX_ENTITIES = 8
 
 app = Flask(__name__)
 CORS(app)

@@ -76,14 +76,14 @@ def create_game():
 
     # Define all 8 possible starting positions (first 4 are original player positions)
     all_positions = [
-        {"q": 4, "r": 3},  # Player 1 (original)
-        {"q": 6, "r": 3},  # Player 2 (original)
-        {"q": 3, "r": 5},  # Player 3 (original)
-        {"q": 7, "r": 4},  # Player 4 (original)
-        {"q": 2, "r": 2},  # Enemy 1 (new)
-        {"q": 8, "r": 2},  # Enemy 2 (new)
-        {"q": 1, "r": 7},  # Enemy 3 (new)
-        {"q": 9, "r": 6}   # Enemy 4 (new)
+        {"q": 8, "r": 7},  # Player 1 (original)
+        {"q": 0, "r": 0},  # Player 2 (original)
+        {"q": 0, "r": 0},  # Player 3 (original)
+        {"q": 0, "r": 0},  # Player 4 (original)
+        {"q": 0, "r": 0},  # Enemy 1 (new)
+        {"q": 0, "r": 0},  # Enemy 2 (new)
+        {"q": 0, "r": 0},  # Enemy 3 (new)
+        {"q": 0, "r": 0}   # Enemy 4 (new)
     ]
 
     # Use only the first MAX_ENTITIES positions

@@ -97,7 +97,8 @@ def create_game():
         "phase": Phase.PLANNING.value,
         "lastPaths": active_paths,
         "stats": active_stats,
-        "map": "overworld"
+        "map": "overworld",
+        "overworld_pos": {"q": 8, "r": 7}  # Track Player 1's overworld position
     }
     return jsonify({"gameId": game_id})
 
@@ -154,7 +155,12 @@ def make_move(game_id):
     game['lastPaths'][player] = path
     game['phase'] = Phase.MOVING.value
     print(f"PHASE: Player {player} move accepted, changed to MOVING phase")
-    
+
+    # If Player 1 (index 0) moves in overworld, update overworld_pos
+    if player == 0 and game.get('map', '') == 'overworld':
+        game['overworld_pos'] = path[-1].copy()
+        print(f"OVERWORLD: Updated Player 1's overworld position to {path[-1]}")
+
     return jsonify({"ok": True})
 
 @app.route('/games/<game_id>/attack', methods=['POST'])
@@ -371,6 +377,34 @@ def set_scenario(game_id):
                     # Also update lastPaths to reflect new positions
                     game['lastPaths'][i] = [positions[i]]
             print(f"SCENARIO: Game {game_id} positions updated from scenario {scenario_name}")
+
+    # Special handling for overworld_return - restore Player 1's saved overworld position
+    if scenario_name == "overworld_return" and 'overworld_pos' in game:
+        overworld_pos = game['overworld_pos']
+        game['positions'][0] = overworld_pos.copy()
+        game['lastPaths'][0] = [overworld_pos.copy()]
+        print(f"OVERWORLD_RETURN: Restored Player 1's position to saved overworld position {overworld_pos}")
+
+    return jsonify({"ok": True})
+
+@app.route('/games/<game_id>/go_to_overworld', methods=['POST'])
+def go_to_overworld(game_id):
+    """Restore Player 1's position to the saved overworld position"""
+    if game_id not in games:
+        return jsonify({"ok": False, "error": "Game not found"}), 404
+
+    game = games[game_id]
+
+    # Check if overworld_pos exists
+    if 'overworld_pos' not in game:
+        return jsonify({"ok": False, "error": "No overworld position saved"})
+
+    # Restore Player 1's position to the overworld position
+    overworld_pos = game['overworld_pos']
+    game['positions'][0] = overworld_pos.copy()
+    game['lastPaths'][0] = [overworld_pos.copy()]
+
+    print(f"OVERWORLD: Restored Player 1's position to overworld position {overworld_pos}")
 
     return jsonify({"ok": True})
 

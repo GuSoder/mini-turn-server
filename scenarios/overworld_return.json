@@ -1,0 +1,5 @@
+{
+    "name": "Overworld Return",
+    "description": "Returning to overworld from battle - Player 1's position will be restored from saved overworld_pos",
+    "map": "overworld"
+}

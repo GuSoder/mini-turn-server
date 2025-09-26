@@ -383,7 +383,10 @@ def set_scenario(game_id):
         overworld_pos = game['overworld_pos']
         game['positions'][0] = overworld_pos.copy()
         game['lastPaths'][0] = [overworld_pos.copy()]
+        # Reset turn to Player 1 (party controller) when returning to overworld
+        game['playerInTurn'] = 0
         print(f"OVERWORLD_RETURN: Restored Player 1's position to saved overworld position {overworld_pos}")
+        print(f"OVERWORLD_RETURN: Reset turn to Player 1 (party controller)")
 
     return jsonify({"ok": True})
 

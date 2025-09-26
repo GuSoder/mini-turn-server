@@ -385,8 +385,13 @@ def set_scenario(game_id):
         game['lastPaths'][0] = [overworld_pos.copy()]
         # Reset turn to Player 1 (party controller) when returning to overworld
         game['playerInTurn'] = 0
+        # Reset all enemy health (entities 5-8) back to full health for next battle
+        for i in range(4, MAX_ENTITIES):  # Entities 4-7 (enemies 5-8)
+            if i < len(game['stats']):
+                game['stats'][i]['health'] = game['stats'][i]['max_health']
         print(f"OVERWORLD_RETURN: Restored Player 1's position to saved overworld position {overworld_pos}")
         print(f"OVERWORLD_RETURN: Reset turn to Player 1 (party controller)")
+        print(f"OVERWORLD_RETURN: Reset all enemy health to full for next battle")
 
     return jsonify({"ok": True})
 

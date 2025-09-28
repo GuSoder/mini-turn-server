@@ -316,6 +316,18 @@ def get_scenario(scenario_name):
     except json.JSONDecodeError:
         return jsonify({"error": f"Invalid JSON in scenario {scenario_name}"}), 500
 
+@app.route('/settlement/<settlement_name>', methods=['GET'])
+def get_settlement(settlement_name):
+    """Get settlement data by name"""
+    try:
+        with open(f'settlements/{settlement_name}.json', 'r') as f:
+            settlement_data = json.load(f)
+        return jsonify(settlement_data)
+    except FileNotFoundError:
+        return jsonify({"error": f"Settlement {settlement_name} not found"}), 404
+    except json.JSONDecodeError:
+        return jsonify({"error": f"Invalid JSON in settlement {settlement_name}"}), 500
+
 @app.route('/scenarios', methods=['GET'])
 def list_scenarios():
     """List all available scenarios"""

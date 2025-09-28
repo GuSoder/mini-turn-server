@@ -76,7 +76,7 @@ def create_game():
 
     # Define all 8 possible starting positions (first 4 are original player positions)
     all_positions = [
-        {"q": 8, "r": 7},  # Player 1 (original)
+        {"q": 12, "r": 13},  # Player 1 (original)
         {"q": 0, "r": 0},  # Player 2 (original)
         {"q": 0, "r": 0},  # Player 3 (original)
         {"q": 0, "r": 0},  # Player 4 (original)

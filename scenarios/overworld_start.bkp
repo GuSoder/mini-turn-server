@@ -3,7 +3,7 @@
     "description": "Standard starting positions for the overworld map",
     "map": "overworld",
     "player_positions": [
-        {"q": 12, "r": 13},
+        {"q": 5, "r": 6},
         {"q": 15, "r": 6},
         {"q": 5, "r": 13},
         {"q": 15, "r": 13}

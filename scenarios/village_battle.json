@@ -1,0 +1,15 @@
+{
+    "name": "Village Battle",
+    "description": "Combat scenario in the village with houses providing cover and tactical positioning",
+    "map": "village1",
+    "player_positions": [
+        {"q": 6, "r": 5},
+        {"q": 8, "r": 5},
+        {"q": 12, "r": 5},
+        {"q": 14, "r": 5},
+        {"q": 8, "r": 8},
+        {"q": 10, "r": 9},
+        {"q": 12, "r": 10},
+        {"q": 10, "r": 12}
+    ]
+}
